@@ -1,0 +1,85 @@
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<template id="template-vue-player">
+  <div>
+    <div id="fragment-vue-player" style="position: relative; width: 50vh;">
+      <!-- SVG content -->
+      <svg width="100%" height="100%" viewBox="0 0 385 272" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+        <g clip-path="url(#_clip2)">
+          <path id="player-team" d="M376,21.2c0,-6.186 -5.014,-11.2 -11.2,-11.2c-54.555,0 -292.045,0 -346.6,0c-6.186,0 -11.2,5.014 -11.2,11.2c0,41.966 0,189.634 0,231.6c0,6.186 5.014,11.2 11.2,11.2c54.555,0 292.045,0 346.6,0c6.186,0 11.2,-5.014 11.2,-11.2c0,-41.966 0,-189.634 0,-231.6Z" style="fill:#ff9947;" />
+          <clipPath id="_clip3">
+            <path d="M376,21.2c0,-6.186 -5.014,-11.2 -11.2,-11.2c-54.555,0 -292.045,0 -346.6,0c-6.186,0 -11.2,5.014 -11.2,11.2c0,41.966 0,189.634 0,231.6c0,6.186 5.014,11.2 11.2,11.2c54.555,0 292.045,0 346.6,0c6.186,0 11.2,-5.014 11.2,-11.2c0,-41.966 0,-189.634 0,-231.6Z" />
+          </clipPath>
+          <g clip-path="url(#_clip3)">
+            <path d="M231.5,137l-80,40l0,-80l80,40Z" style="fill:#ebeff3;" />
+          </g>
+        </g>
+      </svg>
+
+      <!-- Reactive part -->
+      <p class="reactive-part" style="position: absolute; top: 25vh; left: 3vh; font-weight: bold; font-size: 3vh;">
+        Views:
+        <span id="views-counter">
+          {{ views }}
+        </span>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+(function (window, parentDoc) {
+  "use strict"
+
+  const thisDoc = document.currentScript.ownerDocument
+
+  const options = {
+    name: 'player',
+    props: {
+      views: Number
+    },
+    template: thisDoc.querySelector('#template-vue-player')
+  }
+
+  const PlayerVM = Vue.extend(options)
+
+  class CustomPlayer extends HTMLElement {
+    static get observedAttributes () {
+      return ['views']
+    }
+
+    attributeChangedCallback (attr, oldValue, newValue) {
+      if (attr === 'views') {
+        const vm = this.__vue__
+        vm.$props.views = Number(newValue)
+        vm.$forceUpdate()
+      }
+    }
+
+    constructor () {
+      super()
+      this.render()
+    }
+
+    connectedCallback () {
+      this.render()
+    }
+
+    disconnectedCallback () {
+      this.__vue__.$destroy()
+    }
+
+    render () {
+      this.__vue__ = new PlayerVM({
+        el: this,
+        propsData: {
+          views: Number(this.getAttribute('views'))
+        }
+      })
+    }
+  }
+
+  window.customElements.define('fragment-vue-player', CustomPlayer)
+
+})(window, document)
+</script>
